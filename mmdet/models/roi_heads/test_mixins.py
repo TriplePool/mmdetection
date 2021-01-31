@@ -4,7 +4,7 @@ import sys
 import torch
 
 from mmdet.core import (bbox2roi, bbox_mapping, merge_aug_bboxes,
-                        merge_aug_masks, multiclass_nms)
+                        merge_aug_masks, multiclass_nms, merge_aug_seqs)
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,6 @@ if sys.version_info >= (3, 7):
 
 
 class BBoxTestMixin(object):
-
     if sys.version_info >= (3, 7):
 
         async def async_test_bboxes(self,
@@ -77,7 +76,7 @@ class BBoxTestMixin(object):
                 bbox_pred = self.bbox_head.bbox_pred_split(
                     bbox_pred, num_proposals_per_img)
         else:
-            bbox_pred = (None, ) * len(proposals)
+            bbox_pred = (None,) * len(proposals)
 
         # apply bbox post-processing to each image individually
         det_bboxes = []
@@ -131,7 +130,6 @@ class BBoxTestMixin(object):
 
 
 class MaskTestMixin(object):
-
     if sys.version_info >= (3, 7):
 
         async def async_test_mask(self,
@@ -269,3 +267,143 @@ class MaskTestMixin(object):
                 scale_factor=1.0,
                 rescale=False)
         return segm_result
+
+
+class SeqTestMixin(object):
+    if sys.version_info >= (3, 7):
+
+        async def async_test_seq(self,
+                                 x,
+                                 img_metas,
+                                 det_bboxes,
+                                 det_labels,
+                                 rescale=False,
+                                 seq_test_cfg=None):
+            """Asynchronized test for seq head without augmentation."""
+            # image shape of the first image in the batch (only one)
+            ori_shape = img_metas[0]['ori_shape']
+            scale_factor = img_metas[0]['scale_factor']
+            if det_bboxes.shape[0] == 0:
+                rec_result = [[] for _ in range(self.seq_head.num_classes)]
+            else:
+                if rescale and not isinstance(scale_factor,
+                                              (float, torch.Tensor)):
+                    scale_factor = det_bboxes.new_tensor(scale_factor)
+                _bboxes = (
+                    det_bboxes[:, :4] *
+                    scale_factor if rescale else det_bboxes)
+                seq_rois = bbox2roi([_bboxes])
+                seq_feats = self.seq_roi_extractor(
+                    x[:len(self.seq_roi_extractor.featmap_strides)],
+                    seq_rois)
+
+                if self.with_shared_head:
+                    seq_feats = self.shared_head(seq_feats)
+                if seq_test_cfg and seq_test_cfg.get('async_sleep_interval'):
+                    sleep_interval = seq_test_cfg['async_sleep_interval']
+                else:
+                    sleep_interval = 0.035
+                async with completed(
+                        __name__,
+                        'seq_head_forward',
+                        sleep_interval=sleep_interval):
+                    seq_pred = self.seq_head(seq_feats)
+                rec_result = self.seq_head.get_rec_seqs(
+                    seq_pred, _bboxes, det_labels, self.test_cfg, ori_shape,
+                    scale_factor, rescale)
+            return rec_result
+
+    def simple_test_seq(self,
+                        x,
+                        img_metas,
+                        det_bboxes,
+                        det_labels,
+                        rescale=False):
+        """Simple test for seq head without augmentation."""
+        # image shapes of images in the batch
+        ori_shapes = tuple(meta['ori_shape'] for meta in img_metas)
+        scale_factors = tuple(meta['scale_factor'] for meta in img_metas)
+        num_imgs = len(det_bboxes)
+        if all(det_bbox.shape[0] == 0 for det_bbox in det_bboxes):
+            rec_results = [[[] for _ in range(self.seq_head.num_classes)]
+                           for _ in range(num_imgs)]
+        else:
+            # if det_bboxes is rescaled to the original image size, we need to
+            # rescale it back to the testing scale to obtain RoIs.
+            if rescale and not isinstance(scale_factors[0], float):
+                scale_factors = [
+                    torch.from_numpy(scale_factor).to(det_bboxes[0].device)
+                    for scale_factor in scale_factors
+                ]
+            if torch.onnx.is_in_onnx_export():
+                # avoid seq_pred.split with static number of prediction
+                seq_preds = []
+                _bboxes = []
+                for i, boxes in enumerate(det_bboxes):
+                    boxes = boxes[:, :4]
+                    if rescale:
+                        boxes *= scale_factors[i]
+                    _bboxes.append(boxes)
+                    img_inds = boxes[:, :1].clone() * 0 + i
+                    seq_rois = torch.cat([img_inds, boxes], dim=-1)
+                    seq_result = self._seq_forward(x, seq_rois)
+                    seq_preds.append(seq_result['seq_pred'])
+            else:
+                _bboxes = [
+                    det_bboxes[i][:, :4] *
+                    scale_factors[i] if rescale else det_bboxes[i][:, :4]
+                    for i in range(len(det_bboxes))
+                ]
+                seq_rois = bbox2roi(_bboxes)
+                seq_results = self._seq_forward(x, seq_rois)
+                seq_pred = seq_results['seq_pred']
+                # split batch seq prediction back to each image
+                num_seq_roi_per_img = [
+                    det_bbox.shape[0] for det_bbox in det_bboxes
+                ]
+                seq_preds = seq_pred.split(num_seq_roi_per_img, 0)
+
+            # apply seq post-processing to each image individually
+            rec_results = []
+            for i in range(num_imgs):
+                if det_bboxes[i].shape[0] == 0:
+                    rec_results.append(
+                        [[] for _ in range(self.seq_head.num_classes)])
+                else:
+                    rec_result = self.seq_head.get_rec_seqs(
+                        seq_preds[i], _bboxes[i], det_labels[i],
+                        self.test_cfg, ori_shapes[i], scale_factors[i],
+                        rescale)
+                    rec_results.append(rec_result)
+        return rec_results
+
+    def aug_test_seq(self, feats, img_metas, det_bboxes, det_labels):
+        """Test for seq head with test time augmentation."""
+        if det_bboxes.shape[0] == 0:
+            rec_result = [[] for _ in range(self.seq_head.num_classes)]
+        else:
+            aug_seqs = []
+            for x, img_meta in zip(feats, img_metas):
+                img_shape = img_meta[0]['img_shape']
+                scale_factor = img_meta[0]['scale_factor']
+                flip = img_meta[0]['flip']
+                flip_direction = img_meta[0]['flip_direction']
+                _bboxes = bbox_mapping(det_bboxes[:, :4], img_shape,
+                                       scale_factor, flip, flip_direction)
+                seq_rois = bbox2roi([_bboxes])
+                seq_results = self._seq_forward(x, seq_rois)
+                # convert to numpy array to save memory
+                aug_seqs.append(
+                    seq_results['seq_pred'].sigmoid().cpu().numpy())
+            merged_seqs = merge_aug_seqs(aug_seqs, img_metas, self.test_cfg)
+
+            ori_shape = img_metas[0][0]['ori_shape']
+            rec_result = self.seq_head.get_rec_seqs(
+                merged_seqs,
+                det_bboxes,
+                det_labels,
+                self.test_cfg,
+                ori_shape,
+                scale_factor=1.0,
+                rescale=False)
+        return rec_result

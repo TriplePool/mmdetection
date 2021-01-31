@@ -115,3 +115,36 @@ def merge_aug_masks(aug_masks, img_metas, rcnn_test_cfg, weights=None):
         merged_masks = np.average(
             np.array(recovered_masks), axis=0, weights=np.array(weights))
     return merged_masks
+
+
+def merge_aug_seqs(aug_seqs, img_metas, rcnn_test_cfg, weights=None):
+    """Merge augmented seq prediction.
+
+    Args:
+        aug_seqs (list[ndarray]): shape (n, #class, h, w)
+        img_shapes (list[ndarray]): shape (3, ).
+        rcnn_test_cfg (dict): rcnn test config.
+
+    Returns:
+        tuple: (bboxes, scores)
+    """
+    # recovered_seqs = []
+    # for seq, img_info in zip(aug_seqs, img_metas):
+    #     flip = img_info[0]['flip']
+    #     flip_direction = img_info[0]['flip_direction']
+    #     if flip:
+    #         if flip_direction == 'horizontal':
+    #             seq = seq[:, :, :, ::-1]
+    #         elif flip_direction == 'vertical':
+    #             seq = seq[:, :, ::-1, :]
+    #         else:
+    #             raise ValueError(
+    #                 f"Invalid flipping direction '{flip_direction}'")
+    #     recovered_seqs.append(seq)
+    #
+    # if weights is None:
+    #     merged_seqs = np.mean(recovered_seqs, axis=0)
+    # else:
+    #     merged_seqs = np.average(
+    #         np.array(recovered_seqs), axis=0, weights=np.array(weights))
+    return aug_seqs[0]

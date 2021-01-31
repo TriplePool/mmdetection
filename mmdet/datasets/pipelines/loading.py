@@ -218,7 +218,8 @@ class LoadAnnotations(object):
                  with_mask=False,
                  with_seg=False,
                  poly2mask=True,
-                 file_client_args=dict(backend='disk')):
+                 file_client_args=dict(backend='disk'),
+                 with_seq=False):
         self.with_bbox = with_bbox
         self.with_label = with_label
         self.with_mask = with_mask
@@ -226,6 +227,7 @@ class LoadAnnotations(object):
         self.poly2mask = poly2mask
         self.file_client_args = file_client_args.copy()
         self.file_client = None
+        self.with_seq = with_seq
 
     def _load_bboxes(self, results):
         """Private function to load bounding box annotations.
@@ -350,6 +352,20 @@ class LoadAnnotations(object):
         results['seg_fields'].append('gt_semantic_seg')
         return results
 
+    def _load_seq(self, results):
+        """Private function to load bounding box annotations.
+
+        Args:
+            results (dict): Result dict from :obj:`mmdet.CustomDataset`.
+
+        Returns:
+            dict: The dict contains loaded bounding box annotations.
+        """
+
+        ann_info = results['ann_info']
+        results['gt_seqs'] = ann_info['sentence']
+        return results
+
     def __call__(self, results):
         """Call function to load multiple types annotations.
 
@@ -371,6 +387,8 @@ class LoadAnnotations(object):
             results = self._load_masks(results)
         if self.with_seg:
             results = self._load_semantic_seg(results)
+        if self.with_seq:
+            results = self._load_seq(results)
         return results
 
     def __repr__(self):
@@ -426,7 +444,7 @@ class LoadProposals(object):
 
     def __repr__(self):
         return self.__class__.__name__ + \
-            f'(num_max_proposals={self.num_max_proposals})'
+               f'(num_max_proposals={self.num_max_proposals})'
 
 
 @PIPELINES.register_module()
