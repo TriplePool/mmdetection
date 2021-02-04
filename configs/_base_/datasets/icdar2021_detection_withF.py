@@ -1,4 +1,4 @@
-dataset_type = 'CocoDataset'
+dataset_type = 'CalcFDataset'
 # data_root = '/home/weibaole/disk1/gpu/Workspace/Datas/ICDAR2021/'
 # data_root = '/home/wbl/workspace/data/ICDAR2021/'
 data_root='/home/zhouyuxuan/ICDAR2021/'
