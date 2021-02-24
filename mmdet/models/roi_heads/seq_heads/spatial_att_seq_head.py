@@ -276,7 +276,7 @@ class SpatialAttSeqHead(nn.Module):
                             decoder_output, word_targets[:, di]
                         )
             loss_seq_decoder = loss_seq_decoder.sum() / loss_seq_decoder.size(0)
-            loss_seq_decoder = 0.2 * loss_seq_decoder
+            loss_seq_decoder = 0.02 * loss_seq_decoder
             return loss_seq_decoder
         else:
             words = []

@@ -34,20 +34,20 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'TrM_isolated.json',
+        ann_file=data_root + 'TrM_embedded.json',
         img_prefix=data_root + 'TrM/',
         pipeline=train_pipeline,
         classes=classes),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'VaM_isolated.json',
+        ann_file=data_root + 'VaM_embedded.json',
         img_prefix=data_root + 'VaM/',
         pipeline=test_pipeline,
         classes=classes),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'VaM_isolated.json',
+        ann_file=data_root + 'VaM_embedded.json',
         img_prefix=data_root + 'VaM/',
         pipeline=test_pipeline,
         classes=classes))
-evaluation = dict(metric=['bbox', 'segm'])
+evaluation = dict(metric=['bbox'])

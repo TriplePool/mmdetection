@@ -262,7 +262,7 @@ class SeqRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
         """Run forward function and calculate loss for mask head in
         training."""
         if not self.share_roi_extractor:
-            pos_rois = bbox2roi([res.pos_bboxes for res in sampling_results])
+            pos_rois = bbox2roi([res.pos_bboxes for res in sampling_results])[:self.train_cfg.seq_batch_size]
             seq_feats = self._select_seq_feat(x, pos_rois)
         else:
             pos_inds = []
@@ -284,6 +284,8 @@ class SeqRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
                 x, pos_inds=pos_inds, bbox_feats=bbox_feats)
 
         word_targets, decoder_targets = self.seq_head.get_targets(sampling_results, gt_seqs)
+        word_targets, decoder_targets = word_targets[: self.train_cfg.seq_batch_size], decoder_targets[
+                                                                                       : self.train_cfg.seq_batch_size]
 
         loss_seq = self.seq_head(seq_feats, decoder_targets=decoder_targets, word_targets=word_targets,
                                  use_beam_search=False, is_training=True)

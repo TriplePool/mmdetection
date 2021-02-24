@@ -5,7 +5,7 @@ model = dict(
         stage_with_dcn=(False, True, True, True)),
     bbox_head=dict(dcn_on_last_conv=True))
 
-dataset_type = 'CocoDataset'
+dataset_type = 'Icdar2021Dataset'
 # data_root = '/home/weibaole/disk1/gpu/Workspace/Datas/ICDAR2021/'
 data_root = '/home/wbl/workspace/data/ICDAR2021/'
 

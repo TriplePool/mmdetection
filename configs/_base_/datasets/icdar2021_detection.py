@@ -1,7 +1,7 @@
-dataset_type = 'CocoDataset'
+dataset_type = 'Icdar2021Dataset'
 # data_root = '/home/weibaole/disk1/gpu/Workspace/Datas/ICDAR2021/'
-# data_root = '/home/wbl/workspace/data/ICDAR2021/'
-data_root='/home/zhouyuxuan/ICDAR2021/'
+data_root = '/home/wbl/workspace/data/ICDAR2021/'
+# data_root='/home/zhouyuxuan/ICDAR2021/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 train_pipeline = [

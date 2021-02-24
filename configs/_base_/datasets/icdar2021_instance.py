@@ -1,4 +1,4 @@
-dataset_type = 'CocoDataset'
+dataset_type = 'Icdar2021Dataset'
 # data_root = '/home/weibaole/disk1/gpu/Workspace/Datas/ICDAR2021/'
 data_root = '/home/wbl/workspace/data/ICDAR2021/'
 img_norm_cfg = dict(
@@ -50,4 +50,4 @@ data = dict(
         img_prefix=data_root + 'VaM/',
         pipeline=test_pipeline,
         classes=classes))
-evaluation = dict(metric=['bbox', 'segm'])
+evaluation = dict(metric=['bbox'])

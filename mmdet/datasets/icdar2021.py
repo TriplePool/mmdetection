@@ -1,13 +1,13 @@
 import numpy as np
 
 from .builder import DATASETS
-from .coco import CocoDataset
+from .calcF import CalcFDataset
 from ..core import Charset
 import torch
 
 
 @DATASETS.register_module()
-class Icdar2021Dataset(CocoDataset):
+class Icdar2021Dataset(CalcFDataset):
     def __init__(self, **kwargs):
         super(Icdar2021Dataset, self).__init__(**kwargs)
         self.charset = Charset('/home/wbl/workspace/data/ICDAR2021/vocab.json')
@@ -63,7 +63,8 @@ class Icdar2021Dataset(CocoDataset):
             gt_bboxes_ignore = np.zeros((0, 4), dtype=np.float32)
 
         seg_map = img_info['filename'].replace('jpg', 'png')
-        sentence = torch.stack(self.charset.strings_to_labels_tensor(sentence))
+        if sentence[0]:
+            sentence = torch.stack(self.charset.strings_to_labels_tensor(sentence))
 
         ann = dict(
             bboxes=gt_bboxes,

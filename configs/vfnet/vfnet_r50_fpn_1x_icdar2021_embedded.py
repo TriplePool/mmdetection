@@ -66,7 +66,12 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=(1024, 724), keep_ratio=True),
+    dict(type='Resize', img_scale=(2048, 1447), keep_ratio=True),
+    dict(
+        type='RandomCrop',
+        crop_type='relative_range',
+        crop_size=(0.6, 0.8),
+        allow_negative_crop=False),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='Normalize', **img_norm_cfg),
     # dict(type='Pad', size_divisor=32),
@@ -77,7 +82,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1024, 724),
+        img_scale=(2048, 1447),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
