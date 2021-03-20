@@ -120,7 +120,7 @@ data = dict(
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=0.0001,
+    lr=0.00005,
     weight_decay=0.0001,
     paramwise_cfg=dict(
         custom_keys={'backbone': dict(lr_mult=0.1, decay_mult=1.0)}))
