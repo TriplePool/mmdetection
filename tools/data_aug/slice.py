@@ -18,7 +18,6 @@ def parse_args():
 
 args=parse_args()
 
-
 path = "/home/zhouyuxuan/ICDAR2021/"
 
 CLASSES = ('embedded', 'isolated')
