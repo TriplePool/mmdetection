@@ -84,6 +84,10 @@ for imgn in range(len(img_info)):
             if bbox[1] >= lines[i] and bbox[1] + bbox[3] <= lines[j]:
                 annids.append(ann_info[annn]['id'])
 
+        if (lines[j]-lines[i])//500>=len(ann_ids) or len(ann_ids)==0:
+            i=j+1
+            continue
+
         segment = {'img_id': img_id,
                    'top': lines[i],
                    'bottom': lines[j],
@@ -161,7 +165,7 @@ for gen_id in tqdm(range(TOT_GEN)):
 
     bot_segment = None
     if remain >= bot_segs[0]['height']:
-        idx = bot_segs.bisect_left({'height': remain})
+        idx = min( bot_segs.bisect_left({'height': remain}) ,len(bot_segs)-1)
         seg_id = random.randint(0, idx)
         bot_segment = bot_segs[seg_id]
         remain -= bot_segment['height']
