@@ -14,11 +14,15 @@ def xywh_to_xyxy(x, y, w, h, norm=False, width=0, height=0):
 
 def convert_coco_to_icdar2021(coco_result_path, image_info_path, output_path):
     img_infos = mmcv.load(image_info_path)
+    if isinstance(img_infos, dict):
+        img_infos = img_infos['images']
     img_info_dict = dict()
     for img_info in img_infos:
         img_info_dict[img_info['id']] = img_info
 
     coco_results = mmcv.load(coco_result_path)
+    if isinstance(coco_results, dict):
+        coco_results = coco_results['annotations']
     csv_rows = []
     for coco_result in coco_results:
         img_id, bbox, score, category_id = coco_result['image_id'], coco_result['bbox'], coco_result['score'], \
