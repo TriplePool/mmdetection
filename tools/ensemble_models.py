@@ -3,7 +3,7 @@ import mmcv
 
 
 def xywh_to_xyxy(x, y, w, h, norm=False, width=0, height=0):
-    x0, y0, x1, y1 = x, y, x + w, x + h
+    x0, y0, x1, y1 = x, y, x + w, y + h
     if norm and width > 0 and height > 0:
         x0 /= width
         x1 /= width
