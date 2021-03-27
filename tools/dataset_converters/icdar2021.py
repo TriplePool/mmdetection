@@ -27,9 +27,12 @@ def parse_ann_file(ann_path):
 
 
 class Page:
-    def __init__(self, img_path):
-        self.doc_id, self.page_id = parse_page_path(img_path)
-        self.ann_path = '{}-color_{}.txt'.format(self.doc_id, self.page_id)
+    def __init__(self, img_path, simple_prefix=False):
+        if simple_prefix:
+            self.ann_path = osp.basename(img_path).split('.')[0] + '.txt'
+        else:
+            self.doc_id, self.page_id = parse_page_path(img_path)
+            self.ann_path = '{}-color_{}.txt'.format(self.doc_id, self.page_id)
         self.ann_path = osp.join(osp.dirname(img_path), self.ann_path)
         self.boxes = parse_ann_file(self.ann_path)
 
@@ -77,7 +80,8 @@ class OCR:
         return self.data_dict[img_fn][obj_id]
 
 
-def convert_icdar2021_to_coco(data_dir, out_file, image_prefix, with_sentence=False):
+def convert_icdar2021_to_coco(data_dir, out_file, image_prefix, with_sentence=False, simple_format=False,
+                              without_ann=False):
     ocr = None
     if with_sentence:
         ocr = OCR('/home/wbl/workspace/data/ICDAR2021/{}_patches/imagelist.txt'.format(osp.basename(data_dir)),
@@ -100,8 +104,11 @@ def convert_icdar2021_to_coco(data_dir, out_file, image_prefix, with_sentence=Fa
             file_name=v,
             height=height,
             width=width))
+        if without_ann:
+            progress_bar.update()
+            continue
 
-        page = Page(img_path)
+        page = Page(img_path, simple_format)
         box_count = 0
 
         for box in page.boxes:
@@ -186,9 +193,13 @@ def convert_icdar2021_to_coco_one_class(data_dir, out_file, image_prefix, keep_c
 if __name__ == '__main__':
     # convert_icdar2021_to_coco('/home/wbl/workspace/data/ICDAR2021/TrM',
     #                           '/home/wbl/workspace/data/ICDAR2021/TrM_with_sentence.json', '.jpg', with_sentence=True)
-    convert_icdar2021_to_coco_one_class('/home/wbl/workspace/data/ICDAR2021/TrM',
-                                        '/home/wbl/workspace/data/ICDAR2021/TrM_embedded_with_sentence.json', '.jpg',
-                                        with_sentence=True)
-    convert_icdar2021_to_coco_one_class('/home/wbl/workspace/data/ICDAR2021/TrM',
-                                        '/home/wbl/workspace/data/ICDAR2021/TrM_isolated_with_sentence.json', '.jpg',
-                                        {'id': 1, 'name': 'isolated'}, with_sentence=True)
+    # convert_icdar2021_to_coco_one_class('/home/wbl/workspace/data/ICDAR2021/TrM',
+    #                                     '/home/wbl/workspace/data/ICDAR2021/TrM_embedded_with_sentence.json', '.jpg',
+    #                                     with_sentence=True)
+    # convert_icdar2021_to_coco_one_class('/home/wbl/workspace/data/ICDAR2021/TrM',
+    #                                     '/home/wbl/workspace/data/ICDAR2021/TrM_isolated_with_sentence.json', '.jpg',
+    #                                     {'id': 1, 'name': 'isolated'}, with_sentence=True)
+
+    convert_icdar2021_to_coco('/home/wbl/workspace/data/ICDAR2021/test',
+                              '/home/wbl/workspace/data/ICDAR2021/test.json', '.jpg', with_sentence=False,
+                              simple_format=True, without_ann=True)

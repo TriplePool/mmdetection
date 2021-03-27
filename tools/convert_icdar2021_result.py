@@ -12,7 +12,7 @@ def xywh_to_xyxy(x, y, w, h, norm=False, width=0, height=0):
     return [x0, y0, x1, y1]
 
 
-def convert_coco_to_icdar2021(coco_result_path, image_info_path, output_path):
+def convert_coco_to_icdar2021(coco_result_path, image_info_path, output_path, threshold=0.5):
     img_infos = mmcv.load(image_info_path)
     if isinstance(img_infos, dict):
         img_infos = img_infos['images']
@@ -27,6 +27,8 @@ def convert_coco_to_icdar2021(coco_result_path, image_info_path, output_path):
     for coco_result in coco_results:
         img_id, bbox, score, category_id = coco_result['image_id'], coco_result['bbox'], coco_result['score'], \
                                            coco_result['category_id']
+        if score < threshold:
+            continue
         bbox = xywh_to_xyxy(bbox[0], bbox[1], bbox[2], bbox[3])
         img_fn = img_info_dict[img_id]['file_name']
         csv_row = [img_fn, bbox[0], bbox[1], bbox[2], bbox[3], score, category_id]
@@ -38,8 +40,8 @@ def convert_coco_to_icdar2021(coco_result_path, image_info_path, output_path):
 
 
 if __name__ == '__main__':
-    coco_path = ''
-    img_info_path = ''
-    opt_path = ''
+    coco_path = '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet.bbox.json'
+    img_info_path = '/home/wbl/workspace/data/ICDAR2021/VaM.json'
+    opt_path = '/home/wbl/workspace/data/ICDAR2021/tridentnet.csv'
 
-    convert_coco_to_icdar2021(coco_path, img_info_path, opt_path)
+    convert_coco_to_icdar2021(coco_path, img_info_path, opt_path, threshold=0.85)
