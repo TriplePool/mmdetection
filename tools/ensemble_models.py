@@ -16,8 +16,8 @@ def xyxy_to_xywh(x0, y0, x1, y1, denorm=False, width=0, height=0):
     x, y, w, h = x0, y0, x1 - x0, y1 - y0
     if denorm and width > 0 and height > 0:
         x *= width
-        y *= width
-        w *= height
+        y *= height
+        w *= width
         h *= height
     return [x, y, w, h]
 
@@ -27,6 +27,7 @@ def json_to_lisdict(json_path, image_info_dict):
     res_dict = dict()
     for res in results:
         img_id, bbox, score, category_id = res['image_id'], res['bbox'], res['score'], res['category_id']
+        if score < 0.85: continue
         width, height = image_info_dict[img_id]['width'], image_info_dict[img_id]['height']
         bbox = xywh_to_xyxy(bbox[0], bbox[1], bbox[2], bbox[3], norm=True, width=width, height=height)
         if img_id not in res_dict:
@@ -49,10 +50,9 @@ def lisdict_to_json(lisdict, json_path, image_info_dict):
     mmcv.dump(opt_list, json_path)
 
 
-def ensemble_models(ipt_json_paths, opt_json_path, img_ann_path, weights, method='weighted_boxes_fusion', iou_thr=0.5,
+def ensemble_models(ipt_json_paths, opt_json_path, img_ann_path, weights, method='weighted_boxes_fusion', iou_thr=0.3,
                     skip_box_thr=0.0001,
                     sigma=0.1):
-    assert len(ipt_json_paths) == len(weights)
     img_info_dicts = mmcv.load(img_ann_path)['images']
     img_info_dict = dict()
     for img_info in img_info_dicts:
@@ -61,7 +61,7 @@ def ensemble_models(ipt_json_paths, opt_json_path, img_ann_path, weights, method
     res_dicts = []
     res_dict = dict()
     for json_path in ipt_json_paths:
-        res_dicts.append(json_to_lisdict(json_path))
+        res_dicts.append(json_to_lisdict(json_path, img_info_dict))
     for img_id in res_dicts[0]:
         boxes_list = []
         scores_list = []
@@ -86,13 +86,16 @@ def ensemble_models(ipt_json_paths, opt_json_path, img_ann_path, weights, method
                                                           skip_box_thr=skip_box_thr)
         res_dict[img_id] = dict(boxes=boxes, scores=scores, labels=labels)
 
-    lisdict_to_json(res_dict, opt_json_path)
+    lisdict_to_json(res_dict, opt_json_path, img_info_dict)
 
 
 if __name__ == '__main__':
     ipt_paths = [
-        '',
-        '',
+        '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da.bbox.json',
     ]
-    opt_path = ''
-    ensemble_models(ipt_paths, opt_path, weights=[1, 1])
+    weights = None
+    iou_thr = 0.35
+    method = 'non_maximum_weighted'
+    img_info_path = '/home/wbl/workspace/data/ICDAR2021/VaM.json'
+    opt_path = '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da.bbox.wbf.json'
+    ensemble_models(ipt_paths, opt_path, img_info_path, weights=weights, method=method, iou_thr=iou_thr)

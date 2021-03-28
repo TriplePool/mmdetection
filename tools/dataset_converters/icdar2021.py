@@ -200,6 +200,6 @@ if __name__ == '__main__':
     #                                     '/home/wbl/workspace/data/ICDAR2021/TrM_isolated_with_sentence.json', '.jpg',
     #                                     {'id': 1, 'name': 'isolated'}, with_sentence=True)
 
-    convert_icdar2021_to_coco('/home/wbl/workspace/data/ICDAR2021/test',
-                              '/home/wbl/workspace/data/ICDAR2021/test.json', '.jpg', with_sentence=False,
-                              simple_format=True, without_ann=True)
+    convert_icdar2021_to_coco('/home/wbl/workspace/data/ICDAR2021/Tr10',
+                              '/home/wbl/workspace/data/ICDAR2021/Tr10.json', '.jpg', with_sentence=False,
+                              simple_format=True, without_ann=False)

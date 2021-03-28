@@ -40,8 +40,8 @@ def convert_coco_to_icdar2021(coco_result_path, image_info_path, output_path, th
 
 
 if __name__ == '__main__':
-    coco_path = '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet.bbox.json'
+    coco_path = '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da.bbox.wbf.json'
     img_info_path = '/home/wbl/workspace/data/ICDAR2021/VaM.json'
-    opt_path = '/home/wbl/workspace/data/ICDAR2021/tridentnet.csv'
+    opt_path = '/home/wbl/workspace/data/ICDAR2021/tridentnet_da.wbf.csv'
 
     convert_coco_to_icdar2021(coco_path, img_info_path, opt_path, threshold=0.85)
