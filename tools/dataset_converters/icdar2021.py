@@ -190,6 +190,21 @@ def convert_icdar2021_to_coco_one_class(data_dir, out_file, image_prefix, keep_c
     mmcv.dump(coco_format_json, out_file)
 
 
+def covert_icdar_to_single_class(ann_path, opt_path, keep_class={'id': 0, 'name': 'embedded'}):
+    all_data = mmcv.load(ann_path)
+    annotations = all_data['annotations']
+    new_anns = []
+
+    for ann in annotations:
+        if ann['category_id'] != keep_class['id']:
+            continue
+        new_anns.append(ann)
+
+    all_data['annotations'] = new_anns
+
+    mmcv.dump(all_data, opt_path)
+
+
 if __name__ == '__main__':
     # convert_icdar2021_to_coco('/home/wbl/workspace/data/ICDAR2021/TrM',
     #                           '/home/wbl/workspace/data/ICDAR2021/TrM_with_sentence.json', '.jpg', with_sentence=True)
@@ -200,6 +215,10 @@ if __name__ == '__main__':
     #                                     '/home/wbl/workspace/data/ICDAR2021/TrM_isolated_with_sentence.json', '.jpg',
     #                                     {'id': 1, 'name': 'isolated'}, with_sentence=True)
 
-    convert_icdar2021_to_coco('/home/wbl/workspace/data/ICDAR2021/Tr10',
-                              '/home/wbl/workspace/data/ICDAR2021/Tr10.json', '.jpg', with_sentence=False,
-                              simple_format=True, without_ann=False)
+    # convert_icdar2021_to_coco('/home/wbl/workspace/data/ICDAR2021/Tr10',
+    #                           '/home/wbl/workspace/data/ICDAR2021/Tr10.json', '.jpg', with_sentence=False,
+    #                           simple_format=True, without_ann=False)
+
+    covert_icdar_to_single_class('/home/wbl/workspace/data/ICDAR2021/merged.json',
+                                 '/home/wbl/workspace/data/ICDAR2021/merged_isolated.json',
+                                 {'id': 1, 'name': 'isolated'})
