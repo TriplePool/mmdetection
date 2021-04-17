@@ -9,7 +9,7 @@ train_pipeline = [
         img_scale=[(2000, 900), (2000, 600)],
         multiscale_mode='range',
         keep_ratio=True),
-    # dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='RandomFlip', flip_ratio=0.0),
     dict(type='Normalize', **img_norm_cfg),
     # dict(type='Pad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
@@ -34,6 +34,7 @@ data = dict(
     train=dict(pipeline=train_pipeline),
     val=dict(pipeline=test_pipeline),
     test=dict(pipeline=test_pipeline))
+runner = dict(type='EpochBasedRunner', max_epochs=24)
 # learning policy
 lr_config = dict(step=[16, 22])
 total_epochs = 24

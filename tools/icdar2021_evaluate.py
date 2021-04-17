@@ -148,7 +148,7 @@ def display_results(true_pos_IoU, total_pred, total_gt):
     print("\nF1-score using IoU metric")
     # F1 score for embedded mathematical expressions using IoU metric
     f1_score_emb_IoU = round(2*precision_emb_IoU*recall_emb_IoU/(precision_emb_IoU+recall_emb_IoU),4)
-    print("F1-score embedded:\t",f1_score_emb_IoU*100, "( p:", round(precision_emb_IoU,4)*100, ", r:", round(recall_emb_IoU,4)*100, ")")    
+    print("F1-score embedded:\t",f1_score_emb_IoU*100, "( p:", round(precision_emb_IoU,4)*100, ", r:", round(recall_emb_IoU,4)*100, ")")
 
     # F1 score for isolated mathematical expressions using IoU metric
     f1_score_iso_IoU = round(2*precision_iso_IoU*recall_iso_IoU/(precision_iso_IoU+recall_iso_IoU),4)

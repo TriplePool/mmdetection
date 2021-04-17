@@ -39,12 +39,12 @@ def load_predicted(path):
 
 
 if __name__ == '__main__':
-    csv_path = '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da.18.24.yx.25.29.test.bbox.nmw.csv'
+    csv_path = '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet.vfnet.nmw.test.csv'
     img_dir = '/home/wbl/workspace/data/ICDAR2021/test'
 
     opt_path = '/home/wbl/workspace/data/ICDAR2021/test.png'
 
-    img_fn = 'p0189.jpg'
+    img_fn = 'p0314.jpg'
     img_path = os.path.join(img_dir, img_fn)
 
     img = cv2.imread(img_path)

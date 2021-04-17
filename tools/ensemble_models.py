@@ -105,16 +105,18 @@ def ensemble_models(ipt_json_paths, opt_json_path, img_ann_path, weights, method
 if __name__ == '__main__':
     # val
     ipt_paths = [
-        '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da.18.bbox.json',  # 92.15
-        '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da.24.bbox.json',  # 92.12
-        # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da_20000.24.bbox.json',  # 92.179
-        # # yx
-        '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri25.29.bbox.json',
-        '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri25.bbox.json',
-        '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri29.bbox.json',  # ensemble 0.253 92.52
-        # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri25.24.bbox.json'
-        # # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri25.14.bbox.json',
-        # # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri29.20.bbox.json', # ensemble 0.205 92.51
+        # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da.18.bbox.json',  # 92.15
+        # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da.24.bbox.json',  # 92.12
+        # # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da_20000.24.bbox.json',  # 92.179
+        # # # yx
+        # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri25.29.bbox.json',
+        # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri25.bbox.json',
+        # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri29.bbox.json',  # ensemble 0.253 92.52
+        # # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri25.24.bbox.json'
+        # # # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri25.14.bbox.json',
+        # # # '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tri29.20.bbox.json', # ensemble 0.205 92.51
+
+        '/home/wbl/workspace/codes/ICDAR2021/mmdetection/vfnet.iso.c.bbox.json'
 
     ]
     # test
@@ -135,10 +137,10 @@ if __name__ == '__main__':
     # ensemble_models(ipt_paths, opt_path, img_info_path, weights=weights, method=method, iou_thr=iou_thr)
 
     # weights = [1, 0.9, 0.9, 1]
-    weights = [1, 0.9, 1, 0.9, 0.9]
-    # weights = None
+    # weights = [1, 0.9, 1, 0.9, 0.9]
+    weights = None
     iou_thr = 0.35
     method = 'non_maximum_weighted'
     img_info_path = '/home/wbl/workspace/data/ICDAR2021/VaM.json'
-    opt_path = '/home/wbl/workspace/codes/ICDAR2021/mmdetection/tridentnet_da_20000.ensemble.bbox.nmw.json'
+    opt_path = '/home/wbl/workspace/codes/ICDAR2021/mmdetection/vfnet.iso.c.bbox.nmw.json'
     ensemble_models(ipt_paths, opt_path, img_info_path, weights=weights, method=method, iou_thr=iou_thr)
