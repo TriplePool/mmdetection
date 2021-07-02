@@ -14,6 +14,7 @@ from .wider_face import WIDERFaceDataset
 from .xml_style import XMLDataset
 from .icdar2021 import Icdar2021Dataset
 from .calcF import CalcFDataset
+from .math_formula import MathFormulaDataset
 
 __all__ = [
     'CustomDataset', 'XMLDataset', 'CocoDataset', 'DeepFashionDataset',
@@ -22,5 +23,5 @@ __all__ = [
     'DistributedSampler', 'build_dataloader', 'ConcatDataset', 'RepeatDataset',
     'ClassBalancedDataset', 'WIDERFaceDataset', 'DATASETS', 'PIPELINES',
     'build_dataset', 'replace_ImageToTensor', 'get_loading_pipeline',
-    'NumClassCheckHook', 'Icdar2021Dataset', 'CalcFDataset'
+    'NumClassCheckHook', 'Icdar2021Dataset', 'CalcFDataset', 'MathFormulaDataset'
 ]
